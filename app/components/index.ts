@@ -5,3 +5,4 @@ export { SwipeableConnection } from "./SwipeableConnection";
 export { ConnectionFilters } from "./ConnectionFilters";
 export { TextInput } from "./TextInput";
 export { NetworkCard } from "./NetworkCard";
+export * as DeviceConfigComponents from "./DeviceConfig";

@@ -36,7 +36,6 @@ export function Devices(): JSX.Element {
             paddingHorizontal: 20,
             flexDirection: "row",
             alignItems: "center",
-            backgroundColor: "green",
             display: "flex",
           }}
         >
@@ -44,7 +43,6 @@ export function Devices(): JSX.Element {
             onPress={() => navigation.goBack()}
             style={{
               flex: 1,
-              backgroundColor: "red",
               justifyContent: "center",
             }}
           >
@@ -55,7 +53,6 @@ export function Devices(): JSX.Element {
               flex: 1,
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: "orange",
             }}
           >
             {/* TODO align title */}

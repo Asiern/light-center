@@ -13,3 +13,7 @@ export type RootStackParamList = {
   DeviceEditor: undefined;
   DeviceConfig: undefined;
 };
+
+export interface INetwork {
+  bssid: string;
+}
