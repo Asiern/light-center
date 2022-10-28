@@ -10,6 +10,7 @@ import { snapPoint } from "react-native-redash";
 import {
   GestureHandlerRootView,
   PanGestureHandler,
+  PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 
@@ -38,7 +39,10 @@ export function SwipeableConnection({
   const style = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
-  const onGestureEvent = useAnimatedGestureHandler({
+  const onGestureEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    { x: number }
+  >({
     onStart: (_, ctx) => {
       ctx.x = translateX.value;
     },
