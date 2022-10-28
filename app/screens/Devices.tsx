@@ -15,7 +15,8 @@ import { deviceContext } from "../context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
 import { constants } from "../utils";
-import { IConnection } from "../types";
+import { IConnection, RootStackParamList } from "../types";
+import { StackNavigationProp } from "@react-navigation/stack";
 const { colors } = defaultTheme;
 const { iconsSize } = constants;
 
@@ -24,7 +25,7 @@ const filters: string[] = ["Light", "LED", "ESP32"];
 export function Devices(): JSX.Element {
   const { context } = useContext(deviceContext);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <ScrollView style={styles.container}>

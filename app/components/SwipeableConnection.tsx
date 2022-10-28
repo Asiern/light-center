@@ -23,6 +23,8 @@ interface ISwipeableConnection {
 
 import { constants } from "../utils";
 import { Feather } from "@expo/vector-icons";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../types";
 const { connectionHeight, iconsSize, iconMargin } = constants;
 
 const handleDeviceDeletion = async () => {};
@@ -59,7 +61,7 @@ export function SwipeableConnection({
     },
   });
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   return (
     <GestureHandlerRootView>
       <View

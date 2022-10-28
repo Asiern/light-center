@@ -2,6 +2,8 @@ import { Button } from "../components/Button";
 import { View } from "react-native";
 import { constants } from "../utils";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../types";
 
 interface IFloatingActions {
   onToggle: () => void;
@@ -14,7 +16,7 @@ export function FloatingActions({
   onCreate,
   onToggle,
 }: IFloatingActions): JSX.Element {
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={{ flexDirection: "row", padding: 20 }}>

@@ -1,5 +1,5 @@
 import { TouchableOpacity, StyleSheet, Text, View } from "react-native";
-import { IConnection } from "../types";
+import { IConnection, RootStackParamList } from "../types";
 import { useNavigation } from "@react-navigation/native";
 
 import { defaultTheme } from "../theme";
@@ -7,22 +7,23 @@ import { SwipeableConnection } from "./SwipeableConnection";
 const { borderRadius, colors } = defaultTheme;
 import { constants } from "../utils";
 const { connectionHeight, iconsSize } = constants;
-import { Feather } from "@expo/vector-icons";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 export function Connection({
   color,
   description,
   ip,
   name,
+  tags,
 }: IConnection): JSX.Element {
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   return (
     <SwipeableConnection>
       <View style={styles.container}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("Device", {
-              props: { color, description, ip, name },
+              props: { color, description, ip, name, tags },
             })
           }
           style={{

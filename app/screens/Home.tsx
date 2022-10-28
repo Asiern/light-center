@@ -10,13 +10,14 @@ import { Connection, FloatingActions, NetworkCard } from "../components";
 import { defaultTheme } from "../theme";
 import { deviceContext } from "../context";
 import { useNavigation } from "@react-navigation/native";
-import { IConnection } from "../types";
+import { IConnection, RootStackParamList } from "../types";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const { colors } = defaultTheme;
 
 export function Home(): JSX.Element {
   const { context } = useContext(deviceContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   async function onCreate() {
     // TODO navigate to device creation

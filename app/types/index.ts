@@ -5,3 +5,11 @@ export interface IConnection {
   color: string;
   tags: string[];
 }
+
+export type RootStackParamList = {
+  Home: undefined;
+  Device: { props: IConnection };
+  Devices: undefined;
+  DeviceEditor: undefined;
+  DeviceConfig: undefined;
+};
