@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
-import { snapPoint } from "react-native-redash";
+import { clamp, snapPoint } from "react-native-redash";
 import {
   GestureHandlerRootView,
   PanGestureHandler,
@@ -49,7 +49,11 @@ export function SwipeableConnection({
       ctx.x = translateX.value;
     },
     onActive: ({ translationX }, ctx) => {
-      translateX.value = ctx.x + translationX;
+      translateX.value = clamp(
+        ctx.x + translationX,
+        -(iconsSize + 2 * iconMargin),
+        iconsSize + 2 * iconMargin
+      );
     },
     onEnd: ({ velocityX }) => {
       translateX.value = withSpring(
