@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import {
   TextInput as Input,
   StyleSheet,
@@ -8,13 +9,14 @@ import {
 type onChangeText = (text: string) => void;
 
 import { defaultTheme } from "../theme";
+import { GLYPHS } from "../types";
 const { colors, borderRadius } = defaultTheme;
 
 interface ITextInput {
   placeholder?: string;
   value: string;
   onChangeText: onChangeText;
-  //   icon?: GLYPHS;
+  icon?: GLYPHS;
   secure?: boolean;
   textContentType?: TextInputIOSProps;
   error?: boolean;
@@ -31,18 +33,18 @@ export function TextInput({
 }: ITextInput): JSX.Element {
   return (
     <View style={[styles.container, error ? styles.errorBorder : null]}>
-      {/* <Feather
-      name={icon}
-      size={18}
-      color={error ? palette.errorDefault : palette.primaryDark}
-  /> */}
+      <Feather
+        name={icon}
+        size={18}
+        color={error ? colors.error : colors.primary}
+      />
       <Input
         style={styles.input}
         autoCapitalize="none"
         placeholder={placeholder}
         onChangeText={(text) => onChangeText(text)}
         value={value}
-        placeholderTextColor={colors.success}
+        placeholderTextColor={colors.gray}
         secureTextEntry={secure}
       />
     </View>
@@ -53,12 +55,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     height: 65,
-    width: 300,
     backgroundColor: colors.offwhite,
     justifyContent: "center",
     alignItems: "center",
     borderRadius,
-    margin: 20,
+    marginHorizontal: 20,
+    marginVertical: 10,
     paddingHorizontal: 10,
     shadowColor: colors.black,
     shadowOffset: { width: 5, height: 5 },

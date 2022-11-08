@@ -6,7 +6,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types";
 
 interface IFloatingActions {
-  onToggle: () => void;
+  onToggle?: () => void;
   onCreate: () => void;
 }
 
@@ -20,7 +20,7 @@ export function FloatingActions({
 
   return (
     <View style={{ flexDirection: "row", padding: 20 }}>
-      <Button icon={"power"} onPress={() => null} style={{ marginRight: 10 }} />
+      {/* <Button icon={"power"} onPress={() => null} style={{ marginRight: 10 }} /> */}
       <Button
         label="Show all Devices"
         onPress={() => navigation.navigate("Devices")}

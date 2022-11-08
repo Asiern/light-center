@@ -1,30 +1,46 @@
-import { Feather } from "@expo/vector-icons";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, StatusBar } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Button, DeviceConfigComponents } from "../components";
+import { Button, DeviceConfigComponents, TitleBar } from "../components";
 const { DeviceScan } = DeviceConfigComponents;
 import { defaultTheme } from "../theme";
-import { RootStackParamList } from "../types";
+import { IConnection, RootStackParamList } from "../types";
 import { useNavigation } from "@react-navigation/native";
+import { ManualSetup } from "../components/DeviceConfig/ManualSetup";
+import { storeConnection } from "../utils";
 const { colors, borderRadius } = defaultTheme;
 
-function FloatingButtons(): JSX.Element {
+type slides = "scan" | "manual";
+
+interface IFloatingButtons {
+  slide: slides;
+  setSlide: (slide: slides) => void;
+  disabled: boolean[];
+  onContinue: () => void;
+}
+
+function FloatingButtons({
+  setSlide,
+  slide,
+  disabled,
+  onContinue,
+}: IFloatingButtons): JSX.Element {
   return (
     <View style={styles.floatingButtons}>
       <Button
-        label="Manual Setup"
-        onPress={() => null}
+        label={slide === "manual" ? "Guided Setup" : "Manual Setup"}
+        onPress={() => setSlide(slide === "manual" ? "scan" : "manual")}
         style={{ flex: 1, marginRight: 2 }}
         icon="tool"
+        disabled={disabled[0]}
       />
       <Button
         label="Continue"
-        onPress={() => null}
+        onPress={onContinue}
         style={{ flex: 1, marginLeft: 2 }}
         icon="arrow-right"
         iconPosition="right"
+        disabled={disabled[1]}
       />
     </View>
   );
@@ -32,34 +48,48 @@ function FloatingButtons(): JSX.Element {
 
 export function DeviceConfig(): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [state, setState] = useState<slides>("scan");
+  const [connection, setConnection] = useState<IConnection | undefined>(
+    undefined
+  );
+
+  function getSlide(state: slides): JSX.Element {
+    switch (state) {
+      case "manual":
+        return <ManualSetup onChange={setConnection} />;
+      case "scan":
+        return <DeviceScan />;
+    }
+  }
+
+  async function onContinue() {
+    if (connection === undefined) return;
+    await storeConnection(connection);
+    navigation.goBack();
+  }
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{
-          flexDirection: "row",
-          justifyContent: "flex-start",
-          paddingVertical: 20,
-        }}
-      >
-        <Feather name="arrow-left" size={25} />
-      </TouchableOpacity>
-      <View style={styles.slides}>
-        <DeviceScan />
-      </View>
-      <FloatingButtons />
+      <TitleBar />
+      <View style={styles.slides}>{getSlide(state)}</View>
+      <FloatingButtons
+        slide={state}
+        setSlide={setState}
+        disabled={[false, false]}
+        onContinue={onContinue}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     backgroundColor: colors.offwhite,
     flex: 1,
     marginTop: StatusBar.currentHeight,
   },
   slides: {
+    marginHorizontal: 20,
     flex: 1,
     marginBottom: 4,
     backgroundColor: colors.white,
@@ -75,5 +105,7 @@ const styles = StyleSheet.create({
   },
   floatingButtons: {
     flexDirection: "row",
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
 });

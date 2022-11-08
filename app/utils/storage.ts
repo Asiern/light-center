@@ -2,6 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IConnection } from "../types";
 const connectionKey: string = "@connections2";
 
+/**
+ * Add connection to AsyncStorage
+ * @param {IConnection} connection
+ */
 export async function storeConnection(connection: IConnection) {
   try {
     // Get connections from storage
@@ -24,6 +28,10 @@ export async function storeConnection(connection: IConnection) {
   }
 }
 
+/**
+ * Read connections from AsyncStorage
+ * @returns {IConnection[]} list of connections
+ */
 export async function readConnections(): Promise<IConnection[]> {
   try {
     // Get connections from storage

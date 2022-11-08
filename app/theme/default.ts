@@ -6,6 +6,7 @@ export const defaultTheme = {
     white: "#FFF",
     black: "#000",
     success: "#7FEB7F",
+    gray: "#5f5f5f",
   },
   borderRadius: 10,
 };

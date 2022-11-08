@@ -5,25 +5,23 @@ import Animated, {
   Easing,
   interpolate,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDelay,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
 import { defaultTheme } from "../../theme";
-import { getNetworkStateAsync } from "expo-network";
-
+import { getIpAddressAsync, getNetworkStateAsync } from "expo-network";
 import { useEffect } from "react";
-import { INetwork } from "../../types";
-import { Network } from "./Network";
 import { networkScan } from "../../utils";
 
 const { colors } = defaultTheme;
 
 const waveCount: number = 3;
 const circleSize: number = 100;
-const maxCircleSize: number = 300;
-const transitionDuration = 4000;
+const maxCircleSize: number = 200;
+const transitionDuration = 3000;
 
 interface IDot {
   index: number;
@@ -32,15 +30,24 @@ interface IDot {
 // BUG animation delay increases between cycles
 function Dot({ index }: IDot): JSX.Element {
   const progress = useSharedValue<number>(0);
-  const delay = 500 * index;
+  const firstRender = useSharedValue<boolean>(true);
+  const delay = useDerivedValue(() => {
+    if (firstRender) return 500;
+    return 0;
+  }, [firstRender]);
+
   useEffect(() => {
     progress.value = withRepeat(
       withDelay(
-        delay,
-        withTiming(1, { duration: transitionDuration, easing: Easing.linear })
+        delay.value * index,
+        withTiming(
+          1,
+          { duration: transitionDuration, easing: Easing.linear },
+          () => (firstRender.value = false)
+        )
       ),
-      -1 // Repeat infinetly
-    );
+      -1
+    ); // Repeat infinetly
   }, []);
 
   const scale = maxCircleSize / circleSize;
@@ -62,20 +69,30 @@ function Dot({ index }: IDot): JSX.Element {
 
 function Scanning(): JSX.Element {
   return (
-    <View style={styles.container}>
-      <View style={styles.dot}>
-        {[...Array(waveCount).keys()].map((index: number) => {
-          return <Dot key={index} index={index} />;
-        })}
-        <Feather name="wifi" size={40} color={colors.white} />
+    <>
+      <View style={styles.container}>
+        <View style={styles.dot}>
+          {[...Array(waveCount).keys()].map((index: number) => {
+            return <Dot key={index} index={index} />;
+          })}
+          <Feather name="wifi" size={40} color={colors.white} />
+        </View>
       </View>
-    </View>
+      <Text
+        style={[
+          { position: "absolute", alignSelf: "center", margin: 20 },
+          styles.text,
+        ]}
+      >
+        Scanning your network for compatible devices
+      </Text>
+    </>
   );
 }
 
 export function DeviceScan(): JSX.Element {
   const [scanning, setScanning] = useState<boolean>(true);
-  const data: INetwork[] = [{ bssid: "Router1" }, { bssid: "Router2" }];
+  const [devices, setDevices] = useState<string[]>([]);
   const [networkOn, setNetworkOn] = useState<boolean>();
   useEffect(() => {
     const getNetworkStatus = async () => {
@@ -84,7 +101,14 @@ export function DeviceScan(): JSX.Element {
     getNetworkStatus();
     // TODO scan for network devices
     const runNetworkScan = async () => {
-      const networkSnap: INetwork[] = await networkScan();
+      const ip: string = await getIpAddressAsync();
+      console.log(ip);
+      const networkSnap: string[] = await networkScan(ip);
+      console.log(networkSnap);
+      if (networkSnap.length > 0) {
+        setScanning(false);
+        setDevices(networkSnap);
+      }
     };
     runNetworkScan();
   }, []);
@@ -102,9 +126,9 @@ export function DeviceScan(): JSX.Element {
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={devices}
         renderItem={({ item }) => {
-          return <Network bssid={item.bssid} />;
+          return <Text>{item}</Text>;
         }}
         ItemSeparatorComponent={({ item }) => {
           return (
@@ -132,5 +156,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
+  },
+  text: {
+    fontFamily: "Poppins_400Regular",
   },
 });

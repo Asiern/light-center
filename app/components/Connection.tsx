@@ -1,11 +1,12 @@
 import { TouchableOpacity, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { IConnection, RootStackParamList } from "../types";
 import { useNavigation } from "@react-navigation/native";
 
 import { defaultTheme } from "../theme";
 import { SwipeableConnection } from "./SwipeableConnection";
 const { borderRadius, colors } = defaultTheme;
-import { constants } from "../utils";
+import { constants, PORT } from "../utils";
 const { connectionHeight, iconsSize } = constants;
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -17,6 +18,23 @@ export function Connection({
   tags,
 }: IConnection): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [on, setOn] = useState<boolean>(false);
+
+  useEffect(() => {
+    let ws = new WebSocket(`ws://${ip}:${PORT}`);
+    try {
+      ws.onopen = () => {
+        ws.send("P"); // Send ping message
+      };
+      ws.onmessage = () => {
+        setOn(true);
+        ws.close();
+      };
+    } catch (error) {
+      console.error(error);
+    }
+    return () => ws.close();
+  }, []);
   return (
     <SwipeableConnection>
       <View style={styles.container}>
@@ -35,14 +53,27 @@ export function Connection({
         >
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.description}>{description}</Text>
-          <View style={styles.ip}>
+          <View
+            style={[
+              styles.ip,
+              tags.length === 0 || tags === undefined
+                ? { justifyContent: "flex-end" }
+                : { justifyContent: "space-between" },
+            ]}
+          >
+            {/* {tags.map((tag: string) => {
+              return (
+                <View style={styles.ipRow}>
+                  <Text>LED</Text>
+                </View>
+              );
+            })} */}
             <View style={styles.ipRow}>
-              {/* TODO set fill property to svg circle */}
               <View
                 style={{
                   width: 10,
                   height: 10,
-                  backgroundColor: colors.success,
+                  backgroundColor: on ? colors.success : colors.error,
                   borderRadius: iconsSize / 2,
                 }}
               />
@@ -79,7 +110,7 @@ const styles = StyleSheet.create({
   },
   ip: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     flexDirection: "row",
   },
   ipRow: {

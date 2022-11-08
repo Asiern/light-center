@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Button, Connection, ConnectionFilters } from "../components";
+import { Button, Connection, ConnectionFilters, TitleBar } from "../components";
 import { defaultTheme } from "../theme";
 import { deviceContext } from "../context";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -29,76 +29,56 @@ export function Devices(): JSX.Element {
 
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <View
-          style={{
-            marginTop: StatusBar.currentHeight,
-            paddingHorizontal: 20,
-            flexDirection: "row",
-            alignItems: "center",
-            display: "flex",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-              flex: 1,
-              justifyContent: "center",
-            }}
-          >
-            <Feather stroke={colors.primary} name="arrow-left" size={25} />
-          </TouchableOpacity>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {/* TODO align title */}
-            <Text style={styles.title}>Devices</Text>
-          </View>
+      <TitleBar
+        title="Devices"
+        right={
           <Button
             icon={"plus"}
             onPress={() => navigation.navigate("DeviceConfig")}
             style={{ padding: 10 }}
           />
-        </View>
-        <ConnectionFilters
-          onChange={setSelectedFilters}
-          filters={filters}
-          selectedFilters={selectedFilters}
-        />
-        {context?.map(
-          (
-            { color, description, ip, name, tags }: IConnection,
-            index: number
-          ) => {
-            let filterPass: boolean = false;
+        }
+      />
+      {/* <Button
+            icon={"plus"}
+            onPress={() => navigation.navigate("DeviceConfig")}
+            style={{ padding: 10 }}
+          /> */}
+      <ConnectionFilters
+        onChange={setSelectedFilters}
+        filters={filters}
+        selectedFilters={selectedFilters}
+      />
+      {context?.map(
+        (
+          { color, description, ip, name, tags }: IConnection,
+          index: number
+        ) => {
+          let filterPass: boolean = false;
+          if (selectedFilters.length > 0) {
             if (selectedFilters.length > 0) {
-              if (selectedFilters.length > 0) {
-                selectedFilters.forEach((filter: string) => {
-                  tags?.forEach((tag: string) => {
-                    if (filter === tag) filterPass = true;
-                  });
+              selectedFilters.forEach((filter: string) => {
+                tags?.forEach((tag: string) => {
+                  if (filter === tag) filterPass = true;
                 });
-              } else filterPass = true;
-            }
-            if (filterPass || selectedFilters.length === 0)
-              return (
-                <Connection
-                  name={name}
-                  color={color}
-                  description={description}
-                  ip={ip}
-                  key={index}
-                  tags={tags}
-                />
-              );
-            else return null;
+              });
+            } else filterPass = true;
           }
-        )}
-        {/* <FlatList
+          if (filterPass || selectedFilters.length === 0)
+            return (
+              <Connection
+                name={name}
+                color={color}
+                description={description}
+                ip={ip}
+                key={index}
+                tags={tags}
+              />
+            );
+          else return null;
+        }
+      )}
+      {/* <FlatList
           data={context}
           renderItem={({ item, index }) => {
             let filterPass: boolean = false;
@@ -125,16 +105,14 @@ export function Devices(): JSX.Element {
             else return null;
           }}
         /> */}
-      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: colors.offwhite, flex: 1 },
-  title: {
-    fontFamily: "Poppins_500Medium",
-    color: colors.black,
-    fontSize: 18,
+  container: {
+    backgroundColor: colors.offwhite,
+    flex: 1,
+    marginTop: StatusBar.currentHeight,
   },
 });

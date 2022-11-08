@@ -12,8 +12,7 @@ const { borderRadius, colors } = defaultTheme;
 import { constants } from "../utils";
 const { iconsSize } = constants;
 import { Feather } from "@expo/vector-icons";
-
-type GLYPHS = string;
+import { GLYPHS } from "../types";
 
 interface IButton {
   label?: string;
@@ -21,6 +20,7 @@ interface IButton {
   style?: StyleProp<ViewStyle>;
   onPress: () => void;
   iconPosition?: "left" | "right";
+  disabled?: boolean;
 }
 
 export function Button({
@@ -29,13 +29,22 @@ export function Button({
   onPress,
   icon,
   iconPosition,
+  disabled,
 }: IButton): JSX.Element {
   const handlePress = () => {
+    if (disabled) return;
     onPress();
     Vibration.vibrate(20);
   };
   return (
-    <TouchableOpacity style={[styles.container, style]} onPress={handlePress}>
+    <TouchableOpacity
+      style={[
+        styles.container,
+        style,
+        disabled ? null : styles.containerEnabled,
+      ]}
+      onPress={handlePress}
+    >
       {iconPosition === "left" ? (
         <Feather name={icon} size={iconsSize} />
       ) : null}
@@ -43,6 +52,7 @@ export function Button({
         <Text
           style={[
             styles.label,
+            disabled ? { color: colors.gray } : { color: colors.black },
             icon !== undefined && iconPosition === "left"
               ? { marginLeft: 10 }
               : undefined,
@@ -55,7 +65,11 @@ export function Button({
         </Text>
       )}
       {iconPosition === "right" ? (
-        <Feather name={icon} size={iconsSize} />
+        <Feather
+          name={icon}
+          size={iconsSize}
+          color={disabled ? colors.gray : colors.black}
+        />
       ) : null}
     </TouchableOpacity>
   );
@@ -63,14 +77,16 @@ export function Button({
 
 Button.defaultProps = {
   iconPosition: "left",
+  disabled: false,
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    backgroundColor: colors.white,
     borderRadius,
     flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: colors.black,
     shadowOffset: {
       width: 0,
@@ -79,11 +95,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 1.0,
     elevation: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: colors.offwhite,
+  },
+  containerEnabled: {
+    backgroundColor: colors.white,
   },
   label: {
-    color: colors.black,
     fontFamily: "Poppins_500Medium",
   },
 });
