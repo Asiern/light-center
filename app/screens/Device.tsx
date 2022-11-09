@@ -10,12 +10,7 @@ const { colors } = defaultTheme;
 
 var ws: WebSocket;
 
-const msgEvt = (ev: MessageEvent<any>) => {
-  console.log(ev);
-};
-
-const onChange = (r: number, b: number, g: number) => {
-  console.log("Setting color");
+const onChange = (r: number, g: number, b: number) => {
   setRGB(ws, r, g, b);
 };
 
@@ -26,7 +21,7 @@ export function Device(props): JSX.Element {
   useEffect(() => {
     try {
       try {
-        ws = new WebSocket(`ws://192.168.1.139:${PORT}`);
+        ws = new WebSocket(`ws://192.168.1.137:${PORT}`);
       } catch (error) {}
       return () => ws.close();
     } catch (error) {

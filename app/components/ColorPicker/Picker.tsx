@@ -5,7 +5,6 @@ import {
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import Animated, {
-  modulo,
   runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
@@ -25,9 +24,6 @@ const { colors } = defaultTheme;
 const CENTER = { x: SURFACE / 2 - R - STROKE, y: -(SURFACE / 2) - R - STROKE };
 
 interface IPicker {
-  h: number;
-  s: number;
-  v: number;
   onChange: (r: number, g: number, b: number) => void;
 }
 
@@ -50,15 +46,13 @@ export function Picker({ onChange }: IPicker): JSX.Element {
 
   const pickerColor = useDerivedValue(() => {
     const { radius, theta } = canvas2Polar(
-      { x: translateX.value, y: translateY.value },
+      { x: clampedPosition.value.x, y: clampedPosition.value.y },
       CENTER
     );
-    // TODO fix modulo
-    const h = ((theta % (2 * Math.PI)) / 2) * Math.PI;
-    console.log(theta, h);
+    // Normalize values to [0,1] from [0, PI]
+    const h = (theta % (2 * Math.PI)) / (2 * Math.PI);
     const s: number = radius / (SURFACE / 2);
-    const rgb = hsv2rgb(h, Math.pow(s, 2), 1);
-    return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+    return hsv2rgb(h, s * s, 1);
   });
 
   const onGestureEvent = useAnimatedGestureHandler<
@@ -72,15 +66,20 @@ export function Picker({ onChange }: IPicker): JSX.Element {
     onActive: ({ translationX, translationY }, ctx) => {
       translateX.value = ctx.x + translationX;
       translateY.value = ctx.y + translationY;
+      // Set Strip color
+      runOnJS(onChange)(
+        pickerColor.value.r,
+        pickerColor.value.g,
+        pickerColor.value.b
+      );
     },
     onEnd: ({ x, y }, ctx) => {
       ctx.x = x;
       ctx.y = y;
-      runOnJS(onChange)(255, 0, 100);
     },
   });
   const style = useAnimatedStyle(() => ({
-    backgroundColor: pickerColor.value,
+    backgroundColor: `rgb(${pickerColor.value.r},${pickerColor.value.g},${pickerColor.value.b})`,
     transform: [
       { translateX: clampedPosition.value.x },
       { translateY: clampedPosition.value.y },
@@ -89,18 +88,7 @@ export function Picker({ onChange }: IPicker): JSX.Element {
   return (
     <GestureHandlerRootView>
       <PanGestureHandler onGestureEvent={onGestureEvent}>
-        <Animated.View style={[styles.dot, StyleSheet.absoluteFill, style]}>
-          {/* <Svg height={SIZE} width={SIZE}>
-            <Circle
-              r={R}
-              fill={pickerColor.value}
-              cx={SIZE / 2}
-              cy={SIZE / 2}
-              stroke={"#f2f2f2"}
-              strokeWidth={2}
-            />
-          </Svg> */}
-        </Animated.View>
+        <Animated.View style={[styles.dot, StyleSheet.absoluteFill, style]} />
       </PanGestureHandler>
     </GestureHandlerRootView>
   );

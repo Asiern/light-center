@@ -7,7 +7,7 @@ interface IColorPicker {
   onChange: (r: number, g: number, b: number) => void;
 }
 
-export function ColorPicker({}: IColorPicker): JSX.Element {
+export function ColorPicker({ onChange }: IColorPicker): JSX.Element {
   return (
     <View style={{ marginTop: StatusBar.currentHeight, flex: 1 }}>
       <TitleBar />
