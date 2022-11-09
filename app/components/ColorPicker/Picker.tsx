@@ -66,16 +66,16 @@ export function Picker({ onChange }: IPicker): JSX.Element {
     onActive: ({ translationX, translationY }, ctx) => {
       translateX.value = ctx.x + translationX;
       translateY.value = ctx.y + translationY;
+    },
+    onEnd: ({ x, y }, ctx) => {
+      ctx.x = x;
+      ctx.y = y;
       // Set Strip color
       runOnJS(onChange)(
         pickerColor.value.r,
         pickerColor.value.g,
         pickerColor.value.b
       );
-    },
-    onEnd: ({ x, y }, ctx) => {
-      ctx.x = x;
-      ctx.y = y;
     },
   });
   const style = useAnimatedStyle(() => ({
