@@ -21,7 +21,7 @@
     "expo-network": "~4.3.0",
     "expo-splash-screen": "~0.16.2",
     "expo-status-bar": "~1.4.0",
-    "expo-updates": "~0.14.6",
+    "expo-updates": "~0.14.7",
     "gl-react": "^5.2.0",
     "gl-react-expo": "^5.2.1",
     "react": "18.0.0",
