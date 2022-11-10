@@ -72,16 +72,17 @@ void main() {
 
 interface IHue {
   onChange: (r: number, g: number, b: number) => void;
+  onChanging: (r: number, g: number, b: number) => void;
 }
 
-export function Hue({ onChange }: IHue) {
+export function Hue({ onChange, onChanging }: IHue) {
   // const backgroundColor = hsv2color(h, s, v);
   return (
     <View style={styles.hue}>
       <Surface style={styles.surface}>
         <Node shader={shaders.hue} />
       </Surface>
-      <Picker onChange={onChange} />
+      <Picker onChange={onChange} onChanging={onChanging} />
     </View>
   );
 }

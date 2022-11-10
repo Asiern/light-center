@@ -60,11 +60,11 @@ export function Home(): JSX.Element {
       <FloatingActions
         onCreate={() =>
           storeConnection({
-            color: "asd",
+            color: { b: 255, g: 255, r: 255 },
             description: "PC led",
-            ip: "192.168.1.139",
+            ip: "192.168.1.137",
             name: "PC",
-            tags: "LED",
+            tags: ["LED"],
           })
         }
       />

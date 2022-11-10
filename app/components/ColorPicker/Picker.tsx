@@ -25,9 +25,10 @@ const CENTER = { x: SURFACE / 2 - R - STROKE, y: -(SURFACE / 2) - R - STROKE };
 
 interface IPicker {
   onChange: (r: number, g: number, b: number) => void;
+  onChanging: (r: number, g: number, b: number) => void;
 }
 
-export function Picker({ onChange }: IPicker): JSX.Element {
+export function Picker({ onChange, onChanging }: IPicker): JSX.Element {
   const translateX = useSharedValue<number>(CENTER.x);
   const translateY = useSharedValue<number>(CENTER.y);
 
@@ -66,6 +67,11 @@ export function Picker({ onChange }: IPicker): JSX.Element {
     onActive: ({ translationX, translationY }, ctx) => {
       translateX.value = ctx.x + translationX;
       translateY.value = ctx.y + translationY;
+      runOnJS(onChanging)(
+        pickerColor.value.r,
+        pickerColor.value.g,
+        pickerColor.value.b
+      );
     },
     onEnd: ({ x, y }, ctx) => {
       ctx.x = x;
@@ -101,11 +107,11 @@ const styles = StyleSheet.create({
     borderRadius: SIZE / 2,
     shadowColor: colors.black,
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 4,
+      height: 4,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 1.0,
-    elevation: 1,
+    shadowOpacity: 1,
+    shadowRadius: 2.0,
+    elevation: 2,
   },
 });

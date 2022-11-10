@@ -1,76 +1,95 @@
-import { View, StyleSheet, StatusBar } from "react-native";
-import { Button, ColorPicker } from "../components";
+import { View, StyleSheet, StatusBar, Text } from "react-native";
+import { ColorPicker } from "../components";
 import { defaultTheme } from "../theme";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { PORT, setRGB } from "../utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RouteProp } from "@react-navigation/native";
-import { IConnection } from "../types";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import { IConnection, IRGB, RootStackParamList } from "../types";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
+import { Feather } from "@expo/vector-icons";
+import { setStatusBarBackgroundColor } from "expo-status-bar";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { StackNavigationProp } from "@react-navigation/stack";
+
 const { colors } = defaultTheme;
 
 var ws: WebSocket;
 
-const onChange = (r: number, g: number, b: number) => {
-  setRGB(ws, r, g, b);
-};
+type routeProp = RouteProp<{ params: { props: IConnection } }, "params">;
 
-export function Device(props): JSX.Element {
-  const route: RouteProp = props.route;
-  const { ip, color, description, name, tags }: IConnection = route.params;
+export function Device({ route }: { route: routeProp }): JSX.Element {
+  const { ip, color, description, name, tags }: IConnection =
+    route.params.props;
+  const selectedColor = useSharedValue<IRGB>(
+    color || { r: 255, g: 255, b: 255 }
+  );
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const onColorChange = (r: number, g: number, b: number) => {
+    setRGB(ws, r, g, b);
+    selectedColor.value = { r, g, b };
+    setStatusBarBackgroundColor(`rgb(${r},${g},${b})`, false);
+  };
+
+  const onChanging = (r: number, g: number, b: number) => {
+    selectedColor.value = { r, g, b };
+    setStatusBarBackgroundColor(`rgb(${r},${g},${b})`, false);
+  };
+
+  const style = useAnimatedStyle(() => ({
+    backgroundColor: `rgb(${selectedColor.value.r},${selectedColor.value.g},${selectedColor.value.b})`,
+  }));
+
+  const onUnmount = () => {
+    setStatusBarBackgroundColor(colors.offwhite, true);
+    ws.close();
+  };
 
   useEffect(() => {
     try {
-      try {
-        ws = new WebSocket(`ws://192.168.1.137:${PORT}`);
-      } catch (error) {}
-      return () => ws.close();
+      ws = new WebSocket(`ws://192.168.1.137:${PORT}`);
+      setStatusBarBackgroundColor(
+        `rgb(${selectedColor.value.r},${selectedColor.value.g},${selectedColor.value.b})`,
+        true
+      );
+      return () => onUnmount();
     } catch (error) {
       console.error(error);
     }
   }, []);
   return (
     <View style={styles.container}>
-      {/* <Button
-        onPress={() => setRGB(ws, 255, 0, 0)}
-        label="Red"
-        style={{ marginBottom: 10 }}
+      <Animated.View style={[styles.titleBar, style]}>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{}}>
+            <Feather name="arrow-left" size={25} />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={styles.title}> {name}</Text>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "flex-end",
+          }}
+        ></View>
+      </Animated.View>
+      <ColorPicker
+        onChange={onColorChange}
+        onChanging={onChanging}
+        initialColor={color}
       />
-      <Button
-        onPress={() => setRGB(ws, 0, 255, 0)}
-        label="Green"
-        style={{ marginBottom: 10 }}
-      />
-      <Button
-        onPress={() => ws.send("CR0G0B255")}
-        label="Blue"
-        style={{ marginBottom: 10 }}
-      />
-      <Button
-        onPress={() => ws.send("CR255G255B255")}
-        label="White"
-        style={{ marginBottom: 10 }}
-      />
-      <Button
-        onPress={() => ws.send("CR0G0B0")}
-        label="Black"
-        style={{ marginBottom: 10 }}
-      />
-      <Button
-        onPress={() => {
-          console.log(ws.send("P"));
-          ws.onmessage = msgEvt;
-        }}
-        label="Ping"
-        style={{ marginBottom: 10 }}
-      /> */}
-      {/* <Button
-        onPress={() => {
-          AsyncStorage.clear();
-        }}
-        label="Clear AS"
-        style={{ marginBottom: 10 }}
-      /> */}
-      <ColorPicker onChange={onChange} />
     </View>
   );
 }
@@ -80,6 +99,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.offwhite,
     flex: 1,
     marginTop: StatusBar.currentHeight,
+  },
+  titleBar: {
+    flexDirection: "row",
+    backgroundColor: "red",
     padding: 20,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 1.0,
+    elevation: 1,
+  },
+  title: {
+    fontFamily: "Poppins_500Medium",
   },
 });

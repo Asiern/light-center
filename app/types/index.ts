@@ -2,8 +2,14 @@ export interface IConnection {
   name: string;
   description: string;
   ip: string;
-  color: string;
+  color: IRGB;
   tags: string[];
+}
+
+export interface IRGB {
+  r: number;
+  g: number;
+  b: number;
 }
 
 export type RootStackParamList = {
