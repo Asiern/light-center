@@ -13,11 +13,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { canvas2Polar, hsv2rgb, polar2Canvas } from "react-native-redash";
 import { defaultTheme } from "../../theme";
-import { SURFACE } from "./constants";
+import { DOT_SIZE, SURFACE } from "./constants";
 
-const SIZE = 35;
 const STROKE = 5;
-const R = (SIZE - STROKE) / 2;
+const R = (DOT_SIZE - STROKE) / 2;
 
 const { colors } = defaultTheme;
 
@@ -102,9 +101,9 @@ export function Picker({ onChange, onChanging }: IPicker): JSX.Element {
 
 const styles = StyleSheet.create({
   dot: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
+    width: DOT_SIZE,
+    height: DOT_SIZE,
+    borderRadius: DOT_SIZE / 2,
     shadowColor: colors.black,
     shadowOffset: {
       width: 4,
