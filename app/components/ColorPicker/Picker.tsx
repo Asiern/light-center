@@ -6,6 +6,7 @@ import {
 } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
+  SharedValue,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useDerivedValue,
@@ -25,9 +26,18 @@ const CENTER = { x: SURFACE / 2 - R - STROKE, y: -(SURFACE / 2) - R - STROKE };
 interface IPicker {
   onChange: (r: number, g: number, b: number) => void;
   onChanging: (r: number, g: number, b: number) => void;
+  h: SharedValue<number>;
+  s: SharedValue<number>;
+  v: SharedValue<number>;
 }
 
-export function Picker({ onChange, onChanging }: IPicker): JSX.Element {
+export function Picker({
+  onChange,
+  onChanging,
+  h,
+  s,
+  v,
+}: IPicker): JSX.Element {
   const translateX = useSharedValue<number>(CENTER.x);
   const translateY = useSharedValue<number>(CENTER.y);
 
@@ -50,9 +60,9 @@ export function Picker({ onChange, onChanging }: IPicker): JSX.Element {
       CENTER
     );
     // Normalize values to [0,1] from [0, PI]
-    const h = (theta % (2 * Math.PI)) / (2 * Math.PI);
-    const s: number = radius / (SURFACE / 2);
-    return hsv2rgb(h, s * s, 1);
+    h.value = (theta % (2 * Math.PI)) / (2 * Math.PI);
+    s.value = radius / (SURFACE / 2);
+    return hsv2rgb(h.value, s.value * s.value, v.value);
   });
 
   const onGestureEvent = useAnimatedGestureHandler<

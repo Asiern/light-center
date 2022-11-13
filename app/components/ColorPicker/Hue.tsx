@@ -8,6 +8,7 @@ import { GLSL, Node, Shaders } from "gl-react";
 import { defaultTheme } from "../../theme";
 import { Picker } from "./Picker";
 import { SURFACE } from "./constants";
+import { SharedValue } from "react-native-reanimated";
 
 const { colors } = defaultTheme;
 
@@ -73,16 +74,19 @@ void main() {
 interface IHue {
   onChange: (r: number, g: number, b: number) => void;
   onChanging: (r: number, g: number, b: number) => void;
+  h: SharedValue<number>;
+  s: SharedValue<number>;
+  v: SharedValue<number>;
 }
 
-export function Hue({ onChange, onChanging }: IHue) {
+export function Hue({ onChange, onChanging, h, s, v }: IHue) {
   // const backgroundColor = hsv2color(h, s, v);
   return (
     <View style={styles.hue}>
       <Surface style={styles.surface}>
         <Node shader={shaders.hue} />
       </Surface>
-      <Picker onChange={onChange} onChanging={onChanging} />
+      <Picker {...{ onChange, onChanging, h, s, v }} />
     </View>
   );
 }

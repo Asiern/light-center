@@ -4,7 +4,9 @@ import {
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import Animated, {
+  interpolate,
   interpolateColor,
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useDerivedValue,
@@ -19,12 +21,27 @@ import {
   LinearGradient,
   vec,
 } from "@shopify/react-native-skia";
-import { clamp } from "react-native-redash";
+import { clamp, hsv2rgb } from "react-native-redash";
+import { SharedValue } from "react-native-reanimated/lib/types/lib/reanimated2/commonTypes";
 
 const { width } = Dimensions.get("screen");
 const { colors } = defaultTheme;
 
-export function Slider(): JSX.Element {
+interface ISlider {
+  onChange: (r: number, g: number, b: number) => void;
+  onChanging: (r: number, g: number, b: number) => void;
+  h: SharedValue<number>;
+  s: SharedValue<number>;
+  v: SharedValue<number>;
+}
+
+export function Slider({
+  h,
+  s,
+  v,
+  onChange,
+  onChanging,
+}: ISlider): JSX.Element {
   const startX = (width - SURFACE) / 2;
   const endX = (width - SURFACE) / 2 + SURFACE;
   const translateX = useSharedValue<number>(startX);
@@ -37,9 +54,18 @@ export function Slider(): JSX.Element {
     },
     onActive: ({ translationX }, ctx) => {
       translateX.value = clamp(ctx.x + translationX, startX, endX - DOT_SIZE);
+      v.value = interpolate(
+        translateX.value,
+        [startX, endX - DOT_SIZE],
+        [1, 0]
+      );
+      const rgb = hsv2rgb(h.value, s.value, v.value);
+      runOnJS(onChanging)(rgb.r, rgb.g, rgb.b);
     },
     onEnd: ({ x }, ctx) => {
       ctx.x = x;
+      const rgb = hsv2rgb(h.value, s.value, v.value);
+      runOnJS(onChange)(rgb.r, rgb.g, rgb.b);
     },
   });
 
