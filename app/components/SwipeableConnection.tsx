@@ -27,6 +27,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types";
 const { connectionHeight, iconsSize, iconMargin } = constants;
 
+// TODO handleDeviceDeletion
 const handleDeviceDeletion = async () => {};
 
 export function SwipeableConnection({

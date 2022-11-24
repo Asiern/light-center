@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export const PORT = 3951;
 const TIMEOUT = 6000;
 

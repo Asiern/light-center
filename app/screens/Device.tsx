@@ -2,11 +2,12 @@ import { View, StyleSheet, StatusBar, Text } from "react-native";
 import { ColorPicker } from "../components";
 import { defaultTheme } from "../theme";
 import { useEffect } from "react";
-import { PORT, setRGB } from "../utils";
+import { PORT, RGBtoHSV, setRGB } from "../utils";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { IConnection, IRGB, RootStackParamList } from "../types";
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
@@ -23,15 +24,24 @@ type routeProp = RouteProp<{ params: { props: IConnection } }, "params">;
 export function Device({ route }: { route: routeProp }): JSX.Element {
   const { ip, color, description, name, tags }: IConnection =
     route.params.props;
-  const selectedColor = useSharedValue<IRGB>(
-    color || { r: 255, g: 255, b: 255 }
-  );
+  console.log(color);
+  const selectedColor = useSharedValue<IRGB>({ r: 255, g: 255, b: 255 });
+
+  // TODO foreground contrast
+  // const foregroundColor = useDerivedValue<string>(() => {
+  //   const { h } = RGBtoHSV(
+  //     selectedColor.value.r,
+  //     selectedColor.value.g,
+  //     selectedColor.value.b
+  //   );
+  //   return h > 0.5 ? colors.white : colors.black;
+  // });
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const onColorChange = (r: number, g: number, b: number) => {
     setRGB(ws, r, g, b);
-    selectedColor.value = { r, g, b };
-    setStatusBarBackgroundColor(`rgb(${r},${g},${b})`, false);
+    onChanging(r, g, b);
+    // TODO Save color to AsyncStorage
   };
 
   const onChanging = (r: number, g: number, b: number) => {
@@ -50,7 +60,7 @@ export function Device({ route }: { route: routeProp }): JSX.Element {
 
   useEffect(() => {
     try {
-      ws = new WebSocket(`ws://192.168.1.137:${PORT}`);
+      ws = new WebSocket(`ws://${ip}:${PORT}`);
       setStatusBarBackgroundColor(
         `rgb(${selectedColor.value.r},${selectedColor.value.g},${selectedColor.value.b})`,
         true
